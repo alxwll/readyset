@@ -23,19 +23,19 @@
 
 🗓️ **Workout des Tages** – Jeden Tag ein neues Workout, passend zu deinem Level und deinen Geräten. Ein Tipp auf „Go.“ und es geht los.
 
-🎛️ **Generator** – Equipment, Fokus, Trainingsart, Dauer und Abwechslung wählen, fertig ist dein eigenes Workout. Kraft, HIIT, Ausdauer oder Stretching.
+🎛️ **Bau dir dein Workout** – Equipment, Fokus, Trainingsart, Dauer und Abwechslung wählen, fertig ist dein eigenes Workout. Kraft, HIIT, Ausdauer oder Stretching.
 
 🏃 **Animiert statt erklärt** – Über 250 Übungen mit animierten Figuren, Technik-Tipps und leichteren Varianten.
 
-⏱️ **Timer, der mitdenkt** – Ansagen, Pausen mit Vorschau auf die nächste Übung, Seitenwechsel bei einseitigen Übungen. Wiederholungen, Gewicht und Bandfarbe passt du direkt im Training an.
+⏱️ **Der Timer zählt mit** – Ansagen, Pausen mit Vorschau auf die nächste Übung, Seitenwechsel bei einseitigen Übungen. Wiederholungen, Gewicht und Bandfarbe passt du direkt im Training an.
 
-📈 **Lernt mit dir** – Die App merkt sich dein Tempo, deine Wiederholungen und deine Gewichte. Wird es zu leicht, kommt die schwerere Variante.
+📈 **Wird mit dir stärker** – Die App merkt sich dein Tempo, deine Wiederholungen und deine Gewichte. Wird es zu leicht, kommt die schwerere Variante.
 
-🎯 **Dein Stand** – Eine ehrliche Einordnung von Leicht bis Hart. Bist du bereit für die nächste Stufe, sagt dir die App Bescheid.
+🎯 **Weiß, wo du stehst** – Eine ehrliche Einordnung von Leicht bis Hart. Bist du bereit für die nächste Stufe, sagt dir die App Bescheid.
 
 🎨 **Meine Bänder** – Deine eigenen Widerstandsbänder, von leicht nach schwer sortiert. Inklusive Vorschlag, wann das nächste Band dran ist.
 
-🔁 **Tauschen und ausblenden** – Jede Übung lässt sich gegen eine passende Alternative tauschen. Übungen, die du nicht magst, blendest du mit einem Daumen aus.
+🔁 **Tausch, was nervt** – Jede Übung lässt sich gegen eine passende Alternative tauschen. Übungen, die du nicht magst, blendest du mit einem Daumen aus.
 
 ---
 

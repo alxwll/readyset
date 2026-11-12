@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Ready. Set.">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<script>window.RS_STANDALONE=true;</script>
+<script>window.RS_STANDALONE=true;window.RS_PEEK=/[?&]peek\b/.test(location.search);</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -514,6 +514,16 @@ textarea.imp{width:100%;min-height:180px;resize:vertical;border:1.5px solid var(
 .chips-label{font-size:12px;color:var(--muted);font-weight:600;margin-right:2px;align-self:center}
 
 @media (prefers-reduced-motion: reduce){ .p-bar i{transition:none} }
+/* peek card for the landing page */
+html.rs-peek,html.rs-peek body{background:transparent;margin:0}
+html.rs-peek .app{padding:0;max-width:none}
+html.rs-peek header.top{display:none}
+.pk{border:0}
+.pk h1{hyphens:manual;font-size:clamp(38px,9vw,54px)}
+@media (min-width:421px){.pk .hero-top{grid-template-columns:1.15fr .85fr}}
+.pk .pk-list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.pk .pk-list li{background:var(--surface-2);border-radius:999px;padding:5px 12px;font-size:14px}
+.pk .pk-go{text-decoration:none;justify-content:center}
 </style>
 
 <div class="app" lang="de">
@@ -2231,7 +2241,7 @@ function ensureSeeds(){let changed=false;
 /* ---------- Storage (this browser only) ---------- */
 const KEY='flieder.v1';
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{};}catch(e){return {};}}
-function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}}
+function saveLocal(){if(window.RS_PEEK)return;try{localStorage.setItem(KEY,JSON.stringify(DB));}catch(e){}}
 function save(){saveLocal();remoteSaveSettings();}
 const stored=load();
 const DB=Object.assign({sessions:[],level:'standard',favs:[],equip:['none'],emph:'mix',roll:{},prog:{},wucd:true,seeds:[],missing:[],load:{},voice:true,ban:[]},stored);
@@ -2608,7 +2618,7 @@ function bindSwaps(ctx,rerender,root=view){const s=swOf(ctx);
 /* ---------- Views ---------- */
 const view=document.getElementById('view');
 const VIEWS=['heute','generator','uebungen','verlauf'];
-function route(){const v=VIEWS.includes(location.hash.slice(1))?location.hash.slice(1):'heute';
+function route(){if(PEEK)return renderPeek();const v=VIEWS.includes(location.hash.slice(1))?location.hash.slice(1):'heute';
   document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.view===v?'page':'false'));
   ({heute:renderHeute,generator:renderBauen,uebungen:renderUebungen,verlauf:renderVerlauf})[v]();}
 document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{location.hash=b.dataset.view;}));
@@ -2722,6 +2732,27 @@ function seg(name,opts,cur,cls=''){return `<div class="seg ${cls}" role="group" 
 
 /* STANDALONE: the GitHub version sets window.RS_STANDALONE before this script; claude.ai features (text workouts, account sync, duplicate hints, connection check) are hidden there */
 const STANDALONE=!!window.RS_STANDALONE;
+/* PEEK (GitHub version, ?peek): read-only card of today's workout for the landing page; same data as the app, nothing is saved */
+const PEEK=STANDALONE&&!!window.RS_PEEK;
+function renderPeek(){
+  document.documentElement.dataset.theme='light'; document.documentElement.classList.add('rs-peek');
+  const w=ctxWorkout('wod'), df=new Intl.DateTimeFormat('de-DE',{weekday:'long',day:'numeric',month:'long'});
+  const names=[...new Map(w.items.filter(it=>it.ex&&EX[it.ex]).map(it=>[it.ex,it])).values()];
+  view.innerHTML=`<section class="hero pk" aria-labelledby="pk-name">
+    <div class="hero-top">
+      <div>
+        <div class="eyebrow">${df.format(new Date())}</div>
+        <h1 id="pk-name">${w.name}</h1>
+        <p class="meta">ca. ${estMin(w)} Min · ${w.items.length} Übungen · ${roundsLabel(w)}</p>
+      </div>
+      <div class="hero-fig" id="pk-fig"></div>
+    </div>
+    <ul class="pk-list">${names.map(it=>`<li><b>${esc(itemAmount(it,w))}</b> ${esc(exName(it))}</li>`).join('')}</ul>
+    <a class="btn go pk-go" href="./" target="_top">Go<i class="rdot go-dot"></i></a>
+  </section>`;
+  $('pk-fig').appendChild(figure(w.items[0].ex,1));
+  const tell=()=>{try{parent.postMessage({rsPeek:document.querySelector('.pk').offsetHeight+2},'*');}catch(e){}};
+  tell(); addEventListener('resize',tell); if(document.fonts)document.fonts.ready.then(tell);}
 let genMode='regler';
 const modeSwitch=()=>STANDALONE?`<div class="wm-head"><div class="eyebrow">Workout erstellen</div><div class="wm-switch"><button aria-pressed="true" tabindex="-1">Generator<i aria-hidden="true"></i></button></div></div>`:`<div class="wm-head"><div class="eyebrow" id="wm-l">Workout erstellen mit</div>
   <div class="wm-switch" role="group" aria-labelledby="wm-l">${[['regler','Regler'],['import','Text']].map(([k,l])=>`<button data-mode="${k}" aria-pressed="${genMode===k}">${l}<i aria-hidden="true"></i></button>`).join('')}</div></div>`;
@@ -3677,5 +3708,5 @@ pruneMissing();
 route();
 syncInit();
 </script>
-<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=202611121704').catch(()=>{}));</script>
+<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=202611121736').catch(()=>{}));</script>
 </html>
