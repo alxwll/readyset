@@ -385,7 +385,8 @@ textarea.imp{width:100%;min-height:180px;resize:vertical;border:1.5px solid var(
 .p-load.add,.player.has-load .p-load.add{border:0;background:rgba(142,107,209,.12);color:#6B5A93;font-size:14px;font-weight:600;padding:6px 13px}
 .mode-rest .p-load.add{background:rgba(255,255,255,.12);color:#E6DCF7}
 .p-load .pen{width:15px;height:15px;stroke:var(--muted);stroke-width:2}
-.p-ban{position:absolute;top:10px;right:10px;width:40px;height:40px;border-radius:50%;border:0;background:var(--surface-2);color:var(--muted);display:flex;align-items:center;justify-content:center;z-index:2;cursor:pointer}
+/* top left: the figure may show a grip badge in the top right corner */
+.p-ban{position:absolute;top:10px;left:10px;width:40px;height:40px;border-radius:50%;border:0;background:var(--surface-2);color:var(--muted);display:flex;align-items:center;justify-content:center;z-index:2;cursor:pointer}
 .p-ban svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
 .p-ban[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
 .mode-rest .p-ban,.mode-gate .p-ban{background:#fff;color:#6B6080}.mode-rest .p-ban[aria-pressed="true"],.mode-gate .p-ban[aria-pressed="true"]{background:#5A3D9A;color:#fff}
@@ -3676,5 +3677,5 @@ pruneMissing();
 route();
 syncInit();
 </script>
-<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=202611121625').catch(()=>{}));</script>
+<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=202611121656').catch(()=>{}));</script>
 </html>
