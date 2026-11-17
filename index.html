@@ -132,7 +132,7 @@ button.chip:hover:not(:disabled){border-color:var(--line)}
 .linkbtn{border:0;background:none;padding:0;font-size:13px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 
 /* generated result */
-.result{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.result{scroll-margin-top:84px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px}
 .result .wname{font-size:40px}
 .items{display:flex;flex-direction:column;border-top:1px solid var(--line)}
 .item-row{display:flex;align-items:stretch;gap:4px;border-bottom:1px solid var(--line)}
@@ -310,6 +310,17 @@ svg.fig{display:block;width:100%;height:100%}
 .p-stage.dim .fig{opacity:.45}
 .nofig{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:var(--muted);font-size:15px}
 .item .mini.nofig-mini{display:grid;place-items:center;font-size:10px;color:var(--muted);text-align:center;line-height:1.2;padding:4px}
+/* text generator while the AI works */
+.imp-busy textarea.imp{opacity:.5;cursor:progress}
+#imp-go[aria-busy="true"]{background:var(--surface-2);color:var(--accent);opacity:1;cursor:progress;gap:0}
+#imp-go[aria-busy="true"]{flex:1;white-space:nowrap;justify-content:center;padding-left:14px;padding-right:14px}
+.imp-busy #imp-stop{flex:none}
+#imp-go .think{display:inline-flex;gap:4px;margin:0 10px 0 8px}
+#imp-go .think i{width:6px;height:6px;border-radius:50%;background:currentColor;animation:think 1.2s infinite ease-in-out}
+#imp-go .think i:nth-child(2){animation-delay:.15s} #imp-go .think i:nth-child(3){animation-delay:.3s}
+#imp-go .secs{font-variant-numeric:tabular-nums;font-weight:500;opacity:.75;min-width:2.4em;text-align:left}
+@keyframes think{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+@media (prefers-reduced-motion: reduce){#imp-go .think i{animation:none;opacity:.7}}
 textarea.imp{width:100%;min-height:180px;resize:vertical;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;font-size:15px;padding:12px}
 .badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;margin-right:4px}
 .badge.ok{background:var(--surface-2);color:var(--ok)}
@@ -2923,6 +2934,12 @@ async function runImport(){
     ?'Die Textfunktion braucht deine eigene Kopie der App. Melde dich bei claude.ai an und tippe oben auf „Duplizieren“. Verlauf und Favoriten nimmst du unter „Verlauf“ mit „Daten sichern & übernehmen“ mit.'
     :'Die Textfunktion ist in dieser Ansicht gerade nicht verfügbar. Lade die Seite neu. Wenn es dann immer noch nicht klappt, öffne den Link in Safari oder Chrome, während du bei claude.ai angemeldet bist.';return;}
   impCtl=new AbortController(); IMP.loading=true; go.disabled=true; stop.hidden=false;
+  /* busy state: the button itself says the AI is working, with a running second counter */
+  const field=ta.closest('.field'), t0=Date.now(), secs=()=>Math.round((Date.now()-t0)/1000)+' s';
+  field.classList.add('imp-busy'); ta.readOnly=true; go.setAttribute('aria-busy','true');
+  go.innerHTML=`${STANDALONE?'KI':'Claude'} baut dein Workout<span class="think" aria-hidden="true"><i></i><i></i><i></i></span><span class="secs">${secs()}</span>`;
+  const tick=setInterval(()=>{const x=go.querySelector('.secs');if(x)x.textContent=secs();},1000);
+  const idle=()=>{clearInterval(tick);field.classList.remove('imp-busy');ta.readOnly=false;go.removeAttribute('aria-busy');go.textContent='Workout erstellen';};
   status.textContent=STANDALONE?'Die KI liest deinen Text … das dauert meist 5 bis 20 Sekunden.':'Claude liest deinen Text … das dauert meist 10 bis 40 Sekunden.';
   try{
     const data=await sample.json(importPrompt(IMP.text),{signal:impCtl.signal});
@@ -2932,7 +2949,10 @@ async function runImport(){
       IMP.w=w; IMP.loading=false;
       const miss=w.created?[]:w.items.filter(i=>i.match!=='exact').map(i=>i.name);
       if(miss.length){DB.missing=[...new Set([...miss,...DB.missing])].slice(0,60);save();}
-      renderImport(); return;
+      clearInterval(tick); renderImport();
+      const res=view.querySelector('.result');
+      if(res) res.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+      return;
     }
   }catch(e){
     status.textContent={cancelled:'Abgebrochen.',not_granted:'Ohne deine Freigabe kann die App Claude nicht fragen.',
@@ -2945,7 +2965,7 @@ async function runImport(){
       no_key:'Die Textfunktion ist noch nicht eingerichtet.',
       ai_failed:'Die KI hat gerade nicht geantwortet. Versuch es gleich nochmal.'}[e&&(e.name==='AbortError'?'cancelled':e.code)]??'Das hat nicht geklappt. Versuch es nochmal.';
   }
-  IMP.loading=false; go.disabled=false; stop.hidden=true;
+  idle(); IMP.loading=false; go.disabled=false; stop.hidden=true;
 }
 function renderImport(){
   WMAP={};
@@ -2957,7 +2977,7 @@ function renderImport(){
     ${modeSwitch()}
     <div class="field"><label class="eyebrow" for="imp-text">Workout oder Wunsch</label>
       <textarea class="imp" id="imp-text" placeholder="Füge ein fertiges Workout ein, zum Beispiel:&#10;1. Goblet Squat: 3 Sätze × 12 Wiederholungen [Pause: 60 sec]&#10;&#10;Oder beschreibe, was du willst, zum Beispiel:&#10;Ich war gestern laufen, meine Beine sind müde. Erstelle mir 20 Minuten Oberkörper und Core.">${esc(IMP.text)}</textarea>
-      <div class="hero-actions"><button class="btn" id="imp-go">Workout erstellen</button><button class="btn ghost small" id="imp-stop" hidden>Abbrechen</button></div>
+      <div class="hero-actions"><button class="btn" id="imp-go">Workout erstellen</button><button class="btn ghost" id="imp-stop" hidden>Abbrechen</button></div>
       <p class="note" id="imp-status" aria-live="polite">${STANDALONE?'Die KI erkennt selbst, ob du ein fertiges Workout einfügst oder einen Wunsch beschreibst, und stellt es aus deinen Übungen zusammen. Bis zu 10 Text-Workouts pro Tag.':'Claude erkennt selbst, ob du ein fertiges Workout einfügst oder einen Wunsch beschreibst, und stellt es aus deinen Übungen zusammen. Beim ersten Mal fragt die App nach deiner Freigabe.'}</p></div>
     ${w?`<section class="result" aria-labelledby="imp-name">
       <div><div class="eyebrow">${w.created?'Für dich erstellt':'Importiert'}</div><div class="wname" id="imp-name">${esc(w.name)}</div>
@@ -3728,5 +3748,5 @@ pruneMissing();
 route();
 syncInit();
 </script>
-<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=202611171721').catch(()=>{}));</script>
+<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=202611171730').catch(()=>{}));</script>
 </html>
