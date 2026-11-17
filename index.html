@@ -315,6 +315,9 @@ svg.fig{display:block;width:100%;height:100%}
 #imp-go[aria-busy="true"]{background:var(--surface-2);color:var(--accent);opacity:1;cursor:progress;gap:0}
 #imp-go[aria-busy="true"]{flex:1;white-space:nowrap;justify-content:center;padding-left:14px;padding-right:14px}
 .imp-busy #imp-stop{flex:none}
+.imp-x{width:52px;height:52px;padding:0;border-radius:50%;justify-content:center;flex:none}
+.imp-x svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.imp-busy .hero-actions{flex-wrap:nowrap}
 #imp-go .think{display:inline-flex;gap:4px;margin:0 10px 0 8px}
 #imp-go .think i{width:6px;height:6px;border-radius:50%;background:currentColor;animation:think 1.2s infinite ease-in-out}
 #imp-go .think i:nth-child(2){animation-delay:.15s} #imp-go .think i:nth-child(3){animation-delay:.3s}
@@ -2937,7 +2940,7 @@ async function runImport(){
   /* busy state: the button itself says the AI is working, with a running second counter */
   const field=ta.closest('.field'), t0=Date.now(), secs=()=>Math.round((Date.now()-t0)/1000)+' s';
   field.classList.add('imp-busy'); ta.readOnly=true; go.setAttribute('aria-busy','true');
-  go.innerHTML=`${STANDALONE?'KI':'Claude'} baut dein Workout<span class="think" aria-hidden="true"><i></i><i></i><i></i></span><span class="secs">${secs()}</span>`;
+  go.innerHTML=`Wird erstellt<span class="think" aria-hidden="true"><i></i><i></i><i></i></span><span class="secs">${secs()}</span>`;
   const tick=setInterval(()=>{const x=go.querySelector('.secs');if(x)x.textContent=secs();},1000);
   const idle=()=>{clearInterval(tick);field.classList.remove('imp-busy');ta.readOnly=false;go.removeAttribute('aria-busy');go.textContent='Workout erstellen';};
   status.textContent=STANDALONE?'Die KI liest deinen Text … das dauert meist 5 bis 20 Sekunden.':'Claude liest deinen Text … das dauert meist 10 bis 40 Sekunden.';
@@ -2977,7 +2980,7 @@ function renderImport(){
     ${modeSwitch()}
     <div class="field"><label class="eyebrow" for="imp-text">Workout oder Wunsch</label>
       <textarea class="imp" id="imp-text" placeholder="Füge ein fertiges Workout ein, zum Beispiel:&#10;1. Goblet Squat: 3 Sätze × 12 Wiederholungen [Pause: 60 sec]&#10;&#10;Oder beschreibe, was du willst, zum Beispiel:&#10;Ich war gestern laufen, meine Beine sind müde. Erstelle mir 20 Minuten Oberkörper und Core.">${esc(IMP.text)}</textarea>
-      <div class="hero-actions"><button class="btn" id="imp-go">Workout erstellen</button><button class="btn ghost" id="imp-stop" hidden>Abbrechen</button></div>
+      <div class="hero-actions"><button class="btn" id="imp-go">Workout erstellen</button><button class="btn ghost imp-x" id="imp-stop" aria-label="Abbrechen" title="Abbrechen" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <p class="note" id="imp-status" aria-live="polite">${STANDALONE?'Die KI erkennt selbst, ob du ein fertiges Workout einfügst oder einen Wunsch beschreibst, und stellt es aus deinen Übungen zusammen. Bis zu 10 Text-Workouts pro Tag.':'Claude erkennt selbst, ob du ein fertiges Workout einfügst oder einen Wunsch beschreibst, und stellt es aus deinen Übungen zusammen. Beim ersten Mal fragt die App nach deiner Freigabe.'}</p></div>
     ${w?`<section class="result" aria-labelledby="imp-name">
       <div><div class="eyebrow">${w.created?'Für dich erstellt':'Importiert'}</div><div class="wname" id="imp-name">${esc(w.name)}</div>
@@ -3748,5 +3751,5 @@ pruneMissing();
 route();
 syncInit();
 </script>
-<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=202611171730').catch(()=>{}));</script>
+<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=202611171735').catch(()=>{}));</script>
 </html>
