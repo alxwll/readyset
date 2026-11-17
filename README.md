@@ -58,3 +58,30 @@
 3. Fertig. Die App startet im Vollbild, funktioniert auch offline und holt sich Updates automatisch.
 
 🔒 **Deine Daten bleiben bei dir.** Verlauf, Gewichte und Einstellungen werden nur im Browser auf deinem Gerät gespeichert. Für ein neues Handy gibt es unter „Verlauf“ die Funktion **„Daten sichern & übernehmen“**.
+
+---
+
+<details>
+<summary><b>Technik und Einrichtung</b></summary>
+
+**Aufbau**
+
+```
+index.html             die App (wird aus einer einzigen Quelldatei gebaut)
+sw.js                  Offline-Speicher
+worker/src/index.js    Cloudflare Worker: Text-Workouts per KI, Geräte koppeln
+```
+
+**Server einrichten** (einmalig, im Cloudflare-Dashboard)
+
+1. Workers & Pages → Create → „Start with Hello World“, Name `readyset`, Deploy.
+2. Edit code → Inhalt von `worker/src/index.js` einfügen → Deploy.
+3. Storage & Databases → Workers KV → Create namespace `readyset`.
+4. Im Worker: Settings → Bindings → Add → KV namespace, Variable name `RS`, Namespace `readyset`.
+5. Settings → Variables and Secrets → Add, Typ *Secret*: `GEMINI_API_KEY` (Pflicht), `GROQ_API_KEY` (optional, Rückfall).
+6. Die Worker-Adresse aufrufen. Sie sollte `"ok":true,"ai":true,"kv":true` zeigen.
+
+**Grenzen** (optional als Variablen, Typ *Text*): `PER_DEVICE_DAY` (10), `PER_IP_DAY` (20), `TOTAL_DAY` (100). Dazu die monatliche Ausgabenobergrenze im Google-AI-Studio-Projekt.
+
+</details>
+

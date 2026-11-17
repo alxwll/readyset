@@ -1,0 +1,11 @@
+name = "readyset"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://alxwll.github.io"
+
+# KV-Speicher für Grenzen und gekoppelte Geräte (ID aus dem Cloudflare-Dashboard)
+# [[kv_namespaces]]
+# binding = "RS"
+# id = "..."

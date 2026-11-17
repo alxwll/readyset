@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Ready. Set.">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<script>window.RS_STANDALONE=true;window.RS_PEEK=/[?&]peek\b/.test(location.search);</script>
+<script>window.RS_STANDALONE=true;window.RS_PEEK=/[?&]peek\b/.test(location.search);window.RS_API='';</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2730,10 +2730,23 @@ const foamTxt=d=>{const n=foamN(d);return `${n} ${n===1?'Übung':'Übungen'} mit
 function toggleRow(k,on,pic,label,sub){return `<button class="toggle-row" data-toggle="${k}" role="switch" aria-checked="${on}">${pic}<span class="tr-txt"><b>${label}</b><small>${sub}</small></span><span class="sw" aria-hidden="true"></span></button>`;}
 function seg(name,opts,cur,cls=''){return `<div class="seg ${cls}" role="group" aria-label="${name}">${opts.map(([k,l,s])=>`<button data-k="${k}" aria-pressed="${k===cur}">${l}${s?`<small>${s}</small>`:''}</button>`).join('')}</div>`;}
 
-/* STANDALONE: the GitHub version sets window.RS_STANDALONE before this script; claude.ai features (text workouts, account sync, duplicate hints, connection check) are hidden there */
+/* STANDALONE: the GitHub version sets window.RS_STANDALONE before this script; claude.ai features (account sync, duplicate hints, connection check) are hidden there; text workouts run through RS_API */
 const STANDALONE=!!window.RS_STANDALONE;
 /* PEEK (GitHub version, ?peek): read-only card of today's workout for the landing page; same data as the app, nothing is saved */
 const PEEK=STANDALONE&&!!window.RS_PEEK;
+/* RS_API (GitHub version): own Cloudflare Worker for text workouts (Gemini, Groq as fallback) and device pairing */
+const RS_API=STANDALONE?String(window.RS_API||'').replace(/\/$/,''):'';
+const TEXT_ON=!STANDALONE||!!RS_API;
+function rsDevice(){try{let d=localStorage.getItem('rs.device');if(!d){d=Math.random().toString(36).slice(2,10)+Date.now().toString(36);localStorage.setItem('rs.device',d);}return d;}catch(e){return 'ohne';}}
+async function rsWorkout(text,signal){
+  const catalog=Object.entries(EX).map(([k,e])=>[k,e.name,REGION_LABEL[e.region],EQ_LABEL[sourceOf(e)],e.muscles,legLoad(k,e)]);
+  const eq=placeEq().map(id=>EQ_LABEL[id]).join(', ');
+  let r;
+  try{r=await fetch(RS_API+'/api/ai/workout',{method:'POST',signal,headers:{'Content-Type':'application/json','X-RS-Device':rsDevice()},body:JSON.stringify({text,eq,catalog})});}
+  catch(e){const x=new Error('offline');x.code=e.name==='AbortError'?'cancelled':'offline';throw x;}
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok){const x=new Error(d.error||('HTTP '+r.status));x.code=d.code||'http';throw x;}
+  return d.data;}
 function renderPeek(){
   document.documentElement.dataset.theme='light'; document.documentElement.classList.add('rs-peek');
   const w=ctxWorkout('wod'), df=new Intl.DateTimeFormat('de-DE',{weekday:'long',day:'numeric',month:'long'});
@@ -2754,7 +2767,7 @@ function renderPeek(){
   const tell=()=>{try{parent.postMessage({rsPeek:document.querySelector('.pk').offsetHeight+2},'*');}catch(e){}};
   tell(); addEventListener('resize',tell); if(document.fonts)document.fonts.ready.then(tell);}
 let genMode='regler';
-const modeSwitch=()=>STANDALONE?`<div class="wm-head"><div class="eyebrow">Workout erstellen</div><div class="wm-switch"><button aria-pressed="true" tabindex="-1">Generator<i aria-hidden="true"></i></button></div></div>`:`<div class="wm-head"><div class="eyebrow" id="wm-l">Workout erstellen mit</div>
+const modeSwitch=()=>!TEXT_ON?`<div class="wm-head"><div class="eyebrow">Workout erstellen</div><div class="wm-switch"><button aria-pressed="true" tabindex="-1">Generator<i aria-hidden="true"></i></button></div></div>`:`<div class="wm-head"><div class="eyebrow" id="wm-l">Workout erstellen mit</div>
   <div class="wm-switch" role="group" aria-labelledby="wm-l">${[['regler','Regler'],['import','Text']].map(([k,l])=>`<button data-mode="${k}" aria-pressed="${genMode===k}">${l}<i aria-hidden="true"></i></button>`).join('')}</div></div>`;
 function bindMode(){view.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{genMode=b.dataset.mode;renderBauen();}));}
 /* Variety slider: rounds per block, from 4 (few exercises, repeated) to 1 (every exercise once). The picture shows the actual workout: dots = exercises, frame = block, ×n = rounds */
@@ -2781,7 +2794,7 @@ function bindPlace(){
     if(!DB.equip.includes(DB.emph)) DB.emph='mix'; save(); renderBauen();}));
   const es=document.getElementById('emph-sel'); if(es) es.addEventListener('change',()=>{DB.emph=es.value;save();renderBauen();});}
 function renderBauen(){
-  if(genMode==='import'&&!STANDALONE) return renderImport();
+  if(genMode==='import'&&TEXT_ON) return renderImport();
   WMAP={};
   const g=DB.gen, w=currentGen(); reg(w);
   const isFav=DB.favs.some(f=>f.id===w.id);
@@ -2903,12 +2916,14 @@ async function runImport(){
   const ta=$('imp-text'), status=$('imp-status'), go=$('imp-go'), stop=$('imp-stop');
   IMP.text=ta.value; try{localStorage.setItem('flieder.importDraft',IMP.text);}catch(e){}
   if(!IMP.text.trim()){status.textContent='Füge zuerst ein Workout ein oder beschreibe, was du trainieren möchtest.';return;}
-  let sample=null; try{sample=window.claude&&typeof claude.use==='function'?await claude.use('sample'):null;}catch(e){}
+  let sample=null;
+  if(STANDALONE) sample={json:(t,o)=>rsWorkout(IMP.text,o&&o.signal)};
+  else try{sample=window.claude&&typeof claude.use==='function'?await claude.use('sample'):null;}catch(e){}
   if(!sample){status.textContent=SYNC.state==='local'
     ?'Die Textfunktion braucht deine eigene Kopie der App. Melde dich bei claude.ai an und tippe oben auf „Duplizieren“. Verlauf und Favoriten nimmst du unter „Verlauf“ mit „Daten sichern & übernehmen“ mit.'
     :'Die Textfunktion ist in dieser Ansicht gerade nicht verfügbar. Lade die Seite neu. Wenn es dann immer noch nicht klappt, öffne den Link in Safari oder Chrome, während du bei claude.ai angemeldet bist.';return;}
   impCtl=new AbortController(); IMP.loading=true; go.disabled=true; stop.hidden=false;
-  status.textContent='Claude liest deinen Text … das dauert meist 10 bis 40 Sekunden.';
+  status.textContent=STANDALONE?'Die KI liest deinen Text … das dauert meist 5 bis 20 Sekunden.':'Claude liest deinen Text … das dauert meist 10 bis 40 Sekunden.';
   try{
     const data=await sample.json(importPrompt(IMP.text),{signal:impCtl.signal});
     const w=buildImported(data);
@@ -2923,7 +2938,12 @@ async function runImport(){
     status.textContent={cancelled:'Abgebrochen.',not_granted:'Ohne deine Freigabe kann die App Claude nicht fragen.',
       rate_limited:'Gerade zu viele Anfragen. Versuch es in ein paar Minuten nochmal.',session_expired:'Bitte melde dich bei Claude neu an.',
       invalid_json:'Das Workout konnte nicht gelesen werden. Versuch es nochmal oder kürze den Text.',refused:'Claude konnte diesen Text nicht verarbeiten.',
-      sampling_disabled:'Claude ist für dein Konto hier nicht verfügbar.'}[e&&e.code]??'Das hat nicht geklappt. Versuch es nochmal.';
+      sampling_disabled:'Claude ist für dein Konto hier nicht verfügbar.',
+      offline:'Keine Verbindung zum Server. Bist du online? Der Generator mit Reglern geht auch ohne Netz.',
+      limit_device:'Für heute hast du alle Text-Workouts verbraucht. Morgen geht es weiter, der Generator mit Reglern geht immer.',
+      limit_all:'Die Textfunktion ist für heute ausgeschöpft. Morgen geht es weiter, der Generator mit Reglern geht immer.',
+      no_key:'Die Textfunktion ist noch nicht eingerichtet.',
+      ai_failed:'Die KI hat gerade nicht geantwortet. Versuch es gleich nochmal.'}[e&&(e.name==='AbortError'?'cancelled':e.code)]??'Das hat nicht geklappt. Versuch es nochmal.';
   }
   IMP.loading=false; go.disabled=false; stop.hidden=true;
 }
@@ -2938,7 +2958,7 @@ function renderImport(){
     <div class="field"><label class="eyebrow" for="imp-text">Workout oder Wunsch</label>
       <textarea class="imp" id="imp-text" placeholder="Füge ein fertiges Workout ein, zum Beispiel:&#10;1. Goblet Squat: 3 Sätze × 12 Wiederholungen [Pause: 60 sec]&#10;&#10;Oder beschreibe, was du willst, zum Beispiel:&#10;Ich war gestern laufen, meine Beine sind müde. Erstelle mir 20 Minuten Oberkörper und Core.">${esc(IMP.text)}</textarea>
       <div class="hero-actions"><button class="btn" id="imp-go">Workout erstellen</button><button class="btn ghost small" id="imp-stop" hidden>Abbrechen</button></div>
-      <p class="note" id="imp-status" aria-live="polite">Claude erkennt selbst, ob du ein fertiges Workout einfügst oder einen Wunsch beschreibst, und stellt es aus deinen Übungen zusammen. Beim ersten Mal fragt die App nach deiner Freigabe.</p></div>
+      <p class="note" id="imp-status" aria-live="polite">${STANDALONE?'Die KI erkennt selbst, ob du ein fertiges Workout einfügst oder einen Wunsch beschreibst, und stellt es aus deinen Übungen zusammen. Bis zu 10 Text-Workouts pro Tag.':'Claude erkennt selbst, ob du ein fertiges Workout einfügst oder einen Wunsch beschreibst, und stellt es aus deinen Übungen zusammen. Beim ersten Mal fragt die App nach deiner Freigabe.'}</p></div>
     ${w?`<section class="result" aria-labelledby="imp-name">
       <div><div class="eyebrow">${w.created?'Für dich erstellt':'Importiert'}</div><div class="wname" id="imp-name">${esc(w.name)}</div>
         <div class="wfocus">ca. ${estMin(w)} Min · ${w.items.length} Übungen · ${REGION_LABEL[w.focus]}</div>${gearLine(w)}</div>
@@ -3708,5 +3728,5 @@ pruneMissing();
 route();
 syncInit();
 </script>
-<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=202611121736').catch(()=>{}));</script>
+<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=202611171709').catch(()=>{}));</script>
 </html>
