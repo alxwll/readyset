@@ -57,7 +57,11 @@
    **iPhone (Safari):** Teilen-Symbol → **„Zum Home-Bildschirm“**.
 3. Fertig. Die App startet im Vollbild, funktioniert auch offline und holt sich Updates automatisch.
 
-🔒 **Deine Daten bleiben bei dir.** Verlauf, Gewichte und Einstellungen werden nur im Browser auf deinem Gerät gespeichert. Für ein neues Handy gibt es unter „Verlauf“ die Funktion **„Daten sichern & übernehmen“**.
+🔒 **Deine Daten bleiben bei dir.** Verlauf, Gewichte und Einstellungen liegen auf deinem Gerät, ohne Konto und ohne Anmeldung.
+
+🔗 **Geräte koppeln** – Unter „Verlauf“ bekommst du einen Code mit QR-Code. Auf dem zweiten Gerät eingeben oder scannen, und Handy, Tablet und Laptop bleiben auf demselben Stand. Alles wird auf dem Gerät verschlüsselt, der Server sieht nur unlesbare Daten.
+
+✍️ **Workout per Text** – Im Generator unter „Text“ beschreibst du, was du willst, oder fügst ein fertiges Workout ein. Eine KI stellt es aus den animierten Übungen zusammen.
 
 ---
 
