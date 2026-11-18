@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ready. Set. – Workouts mit animierten Figuren</title>
+<meta name="description" content="Kostenlose Workout-App mit animierten Übungen. Jeden Tag ein neues Workout, passend zu deinem Equipment. Ohne Anmeldung, direkt im Browser.">
+<meta name="theme-color" content="#21182F">
+<meta property="og:title" content="Ready. Set.">
+<meta property="og:description" content="Workouts mit animierten Figuren. Jeden Tag neu, mit deinem Equipment.">
+<meta property="og:image" content="https://alxwll.github.io/readyset/about/img/hero.png">
+<meta property="og:url" content="https://alxwll.github.io/readyset/about/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Figtree:wght@400;500;700&display=swap">
+<style>
+:root{
+  --aubergine:#21182F; --deep:#2E2560; --violet:#5A3D9A; --lilac:#8E6BD1; --flieder:#B59AF0;
+  --lavender:#F5F1FA; --mist:#ECE5F6; --line:#DED4EC; --muted:#6B6080; --signal:#E2602F;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--lavender);color:var(--aubergine);font-family:var(--body);font-size:18px;line-height:1.55;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit}
+a:focus-visible,button:focus-visible{outline:3px solid var(--flieder);outline-offset:4px;border-radius:8px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+.d{font-family:var(--display);font-weight:900;text-transform:uppercase;line-height:.86;letter-spacing:.01em;margin:0}
+/* the brand's dots: Ready. Set. and the open ring that is the Go */
+.dot{display:inline-block;width:.2em;height:.2em;border-radius:50%;background:var(--flieder);margin-left:.04em}
+.ring{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+
+/* hero */
+.hero{background:var(--aubergine);color:var(--lavender);overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:40px;align-items:end;padding-top:56px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:16px;color:var(--flieder);text-decoration:none;margin-bottom:64px}
+.brand svg{width:34px;height:34px}
+.mark{font-size:clamp(84px,15vw,200px)}
+.mark .row{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 .16em}
+.go{font-family:var(--display);font-weight:900;font-size:.36em;letter-spacing:.02em;color:var(--aubergine);background:var(--flieder);
+  width:1.9em;height:1.9em;border-radius:50%;align-self:center;transform:translateY(.08em);transition:background .2s,transform .2s}
+.go:hover{background:#fff}
+.go:active{transform:translateY(.08em) scale(.96)}
+.lede b{display:block;color:#fff;font-weight:700;font-size:1.25em;line-height:1.2;margin-bottom:10px}
+.lede{max-width:32ch;font-size:clamp(20px,2.2vw,24px);line-height:1.4;color:#E6DCF7;margin:36px 0 18px}
+.facts{margin:0 0 56px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px 22px;font-size:16px;color:#CBC2E6}
+.facts li{display:flex;align-items:center;gap:8px}
+.facts li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--flieder)}
+.cta{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin-bottom:64px}
+.btn{display:inline-block;background:var(--flieder);color:var(--aubergine);font-weight:700;text-decoration:none;padding:15px 26px;border-radius:14px;font-size:18px}
+.btn:hover{background:#fff}
+.link{color:#E6DCF7;text-underline-offset:4px}
+.phone{justify-self:center;width:min(100%,330px);border:9px solid #3A2E52;border-bottom:0;border-radius:44px 44px 0 0;overflow:hidden;background:#3A2E52;margin-bottom:-2px}
+.phone img{border-radius:34px 34px 0 0}
+
+/* animations */
+.moves{padding:72px 0 64px}
+.moves h2{font-size:clamp(44px,6vw,76px);max-width:14ch}
+.moves p{max-width:52ch;color:var(--muted);margin:16px 0 32px}
+.moves img{width:100%;border-radius:18px}
+
+/* features: a spec list, name left, plain text right */
+.feats{padding:72px 0 72px}
+.feats h2{font-size:clamp(44px,6vw,76px);margin-bottom:28px}
+.feat{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:12px 40px;align-items:center;padding:22px 0;border-top:2px solid var(--line)}
+.feat:last-child{border-bottom:2px solid var(--line)}
+.fh{display:flex;align-items:center;gap:16px}
+.ic{flex:none;width:52px;height:52px;border-radius:16px;background:var(--mist);display:flex;align-items:center;justify-content:center}
+.ic svg{width:28px;height:28px;fill:none;stroke:var(--violet);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ic .fill{fill:var(--violet);stroke:none}
+.feat h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:34px;line-height:1;margin:0;letter-spacing:.01em}
+.feat p{margin:0;color:#3D3350;max-width:56ch}
+
+/* a training in three steps: a real sequence, so numbered */
+.steps{padding:8px 0 80px}
+.steps h2{font-size:clamp(44px,6vw,76px);margin-bottom:32px}
+.steps ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;counter-reset:st}
+.steps li{counter-increment:st}
+.shot{aspect-ratio:600/711;border-radius:22px;overflow:hidden;background:var(--lavender);border:2px solid var(--line)}
+.shot img{width:100%;height:100%;object-fit:contain;object-position:50% 0}
+.steps h3{display:flex;align-items:center;gap:12px;font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:32px;line-height:1;margin:20px 0 8px}
+.steps h3::before{content:counter(st);flex:none;width:40px;height:40px;border-radius:50%;background:var(--violet);color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center}
+.steps li p{margin:0;color:#3D3350;max-width:34ch}
+
+/* today: the live workout of the day, straight from the app */
+.today{background:var(--deep);color:var(--lavender);padding:80px 0}
+.today .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:48px;align-items:center}
+.today h2{font-size:clamp(52px,7vw,96px)}
+.today p{max-width:34ch;color:#D9CFF0;margin:18px 0 0}
+.card{min-height:200px}
+.card iframe{display:block;width:100%;height:540px;border:0;border-radius:22px;background:transparent}
+.card .alt{display:none;padding:28px 18px;text-align:center;color:var(--aubergine)}
+
+/* say: text workouts */
+.say{padding:88px 0}
+.say .wrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:56px;align-items:center}
+.say h2{font-size:clamp(48px,6.5vw,88px)}
+.say p{max-width:38ch;color:#3D3350;margin:18px 0 0}
+.say p.small{font-size:15px;color:var(--muted)}
+.asks{list-style:none;margin:26px 0 0;padding:0;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.asks li{background:#fff;border:2px solid var(--line);border-radius:20px 20px 20px 6px;padding:12px 16px;max-width:40ch;font-weight:500}
+.shot2{justify-self:center;width:100%;max-width:380px;max-height:640px;border-radius:26px;overflow:hidden;border:2px solid var(--line);background:var(--lavender)}
+.shot2 img{width:100%;height:100%;object-fit:cover;object-position:50% 0}
+.shot2{position:relative}
+.shot2::after{content:"";position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(rgba(245,241,250,0),var(--lavender))}
+
+/* screens */
+.screens{background:var(--mist);padding:72px 0}
+.screens h2{font-size:clamp(44px,6vw,76px);margin-bottom:32px}
+.strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.strip img{border-radius:18px}
+
+/* install: a real sequence, so numbered */
+.install{padding:72px 0}
+.install h2{font-size:clamp(44px,6vw,76px)}
+.install>.wrap>p{max-width:52ch;color:var(--muted);margin:14px 0 36px}
+.os{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.os section{background:#fff;border:2px solid var(--line);border-radius:22px;padding:26px 26px 22px}
+.os h3{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:30px;margin:0 0 14px;line-height:1}
+.os ol{margin:0;padding:0;list-style:none;counter-reset:s}
+.os li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:12px;padding:8px 0}
+.os li::before{content:counter(s);font-family:var(--display);font-weight:900;font-size:22px;width:34px;height:34px;border-radius:50%;background:var(--mist);color:var(--violet);display:flex;align-items:center;justify-content:center}
+.note{display:flex;gap:14px;align-items:flex-start;margin-top:28px;max-width:70ch;color:#3D3350}
+.note svg{flex:none;width:26px;height:26px;margin-top:2px}
+
+/* closing call */
+.final{background:var(--violet);color:#fff;text-align:center;padding:84px 0}
+.final .d{font-size:clamp(64px,11vw,140px)}
+.final .row{display:inline-flex;align-items:center;gap:.14em}
+.final .go{font-size:.42em;transform:none}
+.final .go:active{transform:scale(.96)}
+.final p{margin:22px auto 0;color:#E6DCF7;max-width:40ch}
+footer{padding:28px 0 40px;font-size:15px;color:var(--muted)}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
+
+@media (max-width:860px){
+  .hero .wrap{grid-template-columns:minmax(0,1fr);padding-top:36px}
+  .brand{margin-bottom:40px}
+  .phone{width:min(78%,300px)}
+  .cta{margin-bottom:8px}
+  .feat{grid-template-columns:minmax(0,1fr)}
+  .strip{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:62%;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}
+  .strip img{scroll-snap-align:start}
+  .os{grid-template-columns:minmax(0,1fr)}
+  .steps ol{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:78%;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}
+  .steps li{scroll-snap-align:start}
+  .today .wrap{grid-template-columns:minmax(0,1fr);gap:28px}
+  .say{padding:56px 0}.say .wrap{grid-template-columns:minmax(0,1fr);gap:32px}.shot2{max-height:560px}
+  .fh{gap:12px}.ic{width:44px;height:44px;border-radius:14px}.ic svg{width:24px;height:24px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.go,.btn{transition:none}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="#top" aria-label="Ready. Set.">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="29" cy="50" r="9" fill="#B59AF0"/><circle cx="50" cy="50" r="9" fill="#B59AF0"/><circle cx="71" cy="50" r="7.5" fill="none" stroke="#B59AF0" stroke-width="3.5"/></svg>
+        Ready. Set.
+      </a>
+      <h1 class="d mark" id="top">
+        <span class="row"><span>Ready<span class="dot"></span></span></span>
+        <span class="row"><span>Set<span class="dot"></span></span><a class="ring go" href="https://alxwll.github.io/readyset/" aria-label="Go: App öffnen">Go.</a></span>
+      </h1>
+      <p class="lede"><b>Training, das dir zeigt, wie's geht.</b> Workouts mit animierten Figuren, jeden Tag neu, mit deinem Equipment.</p>
+      <ul class="facts" aria-label="Auf einen Blick">
+        <li>Kostenlos</li><li>Ohne Anmeldung</li><li>Über 250 Übungen</li><li>Läuft im Browser</li>
+      </ul>
+      <div class="cta">
+        <a class="btn" href="https://alxwll.github.io/readyset/">App öffnen</a>
+        <a class="link" href="#installieren">So kommt sie aufs Handy</a>
+      </div>
+    </div>
+    <div class="phone"><img src="img/phone-train.png" alt="Training in der App: animierte Figur bei der Renegade Row, darunter 10 Wiederholungen und 10 kg" width="600" height="1301"></div>
+  </div>
+</header>
+
+<main>
+  <section class="moves" aria-labelledby="moves-h">
+    <div class="wrap">
+      <h2 class="d" id="moves-h">Zuschauen. Mitmachen.</h2>
+      <p>Jede Übung läuft als Animation, so siehst du sofort, wie sie geht. Dazu Technik-Tipps und eine leichtere Variante, falls es noch nicht klappt.</p>
+      <img src="img/animationen.gif" alt="Vier animierte Figuren: Strecksprung, Schulterdrücken mit Band, Face Pull mit Band, Mountain Climber" width="868" height="211" loading="lazy">
+    </div>
+  </section>
+
+  <section class="steps" aria-labelledby="steps-h">
+    <div class="wrap">
+      <h2 class="d" id="steps-h">So läuft ein Training</h2>
+      <ol>
+        <li><div class="shot"><img style="object-position:50% 50%" src="img/step-1.png" alt="Workout des Tages mit dem Go-Knopf" width="600" height="539" loading="lazy"></div>
+          <h3>Go drücken</h3><p>Das Workout des Tages steht schon bereit. Ein Tipp, und der Timer startet.</p></li>
+        <li><div class="shot"><img src="img/step-2.png" alt="Training: animierte Figur bei der Reverse Lunge, 20 Wiederholungen" width="600" height="711" loading="lazy"></div>
+          <h3>Der Figur folgen</h3><p>Die Figur macht jede Übung vor, die App sagt an, zählt mit und zeigt, was als Nächstes kommt.</p></li>
+        <li><div class="shot"><img style="object-position:50% 50%" src="img/step-3.png" alt="Geschafft: Zeit 24:37 und die Frage, wie es war" width="600" height="672" loading="lazy"></div>
+          <h3>Sagen, wie's war</h3><p>Zu leicht, genau richtig oder zu schwer: Beim nächsten Mal passt die App die Wiederholungen an.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="today" aria-labelledby="today-h">
+    <div class="wrap">
+      <div>
+        <h2 class="d" id="today-h">Heute dran</h2>
+        <p>Das ist das Workout des Tages, genau so, wie es gerade in der App steht. Morgen wartet ein neues.</p>
+      </div>
+      <div class="card">
+        <iframe id="today-frame" src="../?peek" title="Workout des Tages" loading="lazy"></iframe>
+        <div class="alt"><a class="btn" href="https://alxwll.github.io/readyset/">Workout des Tages öffnen</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="say" aria-labelledby="say-h">
+    <div class="wrap">
+      <div>
+        <h2 class="d" id="say-h">Sag einfach, was du brauchst</h2>
+        <p>Schreib in deinen Worten, worauf du Lust hast und wie es dir geht. Die App baut daraus ein Workout mit den animierten Übungen und schont, was heute müde ist.</p>
+        <ul class="asks" aria-label="Beispiele">
+          <li>Ich war gestern laufen, meine Beine sind müde. 20 Minuten Oberkörper und Core.</li>
+          <li>Eine Plank-Challenge für zehn Minuten.</li>
+          <li>Kurz und knackig, nur mit Kettlebell.</li>
+        </ul>
+        <p class="small">Ein fertiges Workout aus einer anderen App oder aus dem Chat mit einer KI kannst du auch einfach einfügen. Die App ordnet jede Übung der passenden Figur zu.</p>
+      </div>
+      <div class="shot2"><img src="img/text-ki.png" alt="Der Wunsch „Beine müde, 20 Minuten Oberkörper und Core“ wird zum Workout Oberkörper und Core mit Push-up, Band Row, Face Pull und Dead Bug" width="640" height="1501" loading="lazy"></div>
+    </div>
+  </section>
+
+  <section class="feats" aria-labelledby="feats-h">
+    <div class="wrap">
+      <h2 class="d" id="feats-h">Was drinsteckt</h2>
+      <div class="feat"><div class="fh"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/><circle cx="12" cy="15.2" r="1.7" class="fill"/></svg></span><h3>Workout des Tages</h3></div><p>Jeden Morgen ein neues Workout, passend zu deinem Level und deinen Geräten. Ein Tipp auf „Go.“ und es geht los.</p></div>
+      <div class="feat"><div class="fh"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg></span><h3>Bau dir dein Workout</h3></div><p>Du wählst Geräte, Körperbereich, Trainingsart und Dauer, die App baut dein Workout. Kraft, HIIT, Ausdauer oder Stretching, von Bodyweight bis Langhantel.</p></div>
+      <div class="feat"><div class="fh"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v10.5H10l-4.5 4v-4H4z"/><path d="M12 7.6v5.3M9.35 10.25h5.3"/></svg></span><h3>Schreib's einfach rein</h3></div><p>Wunsch eintippen oder ein fertiges Workout einfügen, die KI macht daraus ein Training mit Animationen. Bis zu zehn Text-Workouts am Tag, kostenlos.</p></div>
+      <div class="feat"><div class="fh"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 13.5V10M10 3h4M12 3v3.5M18 7l1.5-1.5"/></svg></span><h3>Der Timer zählt mit</h3></div><p>Ansagen, Pausen mit Vorschau auf die nächste Übung und Seitenwechsel bei einseitigen Übungen. Wiederholungen, Gewicht und Bandfarbe passt du direkt im Training an.</p></div>
+      <div class="feat"><div class="fh"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 17.5l5.5-5.5 4 3.5 7.5-7.5"/><path d="M15 8h5.5v5.5"/></svg></span><h3>Wird mit dir stärker</h3></div><p>Die App merkt sich dein Tempo, deine Wiederholungen und Gewichte. Wird eine Übung zu leicht, kommt die schwerere Variante. 30 Minuten bleiben 30 Minuten.</p></div>
+      <div class="feat"><div class="fh"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 17a8 8 0 0 1 16 0"/><path d="M12 17l3.6-4.6"/><circle cx="12" cy="17" r="1.4" class="fill"/></svg></span><h3>Weiß, wo du stehst</h3></div><p>Eine ehrliche Einordnung von Leicht bis Hart. Wenn du bereit für die nächste Stufe bist, sagt dir die App Bescheid.</p></div>
+      <div class="feat"><div class="fh"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 8.5h14M14.5 5l3.5 3.5-3.5 3.5M20 15.5H6M9.5 12L6 15.5 9.5 19"/></svg></span><h3>Tausch, was nervt</h3></div><p>Übungen tauschen, unbeliebte ausblenden, eigene Widerstandsbänder von leicht nach schwer sortieren. Das Training passt sich dir an, nicht umgekehrt.</p></div>
+      <div class="feat"><div class="fh"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="10" height="15" rx="2"/><rect x="14.5" y="8" width="7" height="12" rx="1.5"/><path d="M12.5 12.5h2"/></svg></span><h3>Überall dein Stand</h3></div><p>Handy, Tablet und Laptop koppeln: Code eingeben oder QR-Code scannen, fertig. Ohne Konto und ohne Passwort, verschlüsselt, bevor etwas dein Gerät verlässt.</p></div>
+    </div>
+  </section>
+
+  <section class="screens" aria-labelledby="screens-h">
+    <div class="wrap">
+      <h2 class="d" id="screens-h">So sieht's aus</h2>
+      <div class="strip">
+        <img src="img/screen-1.png" alt="Startseite mit dem Workout des Tages" width="540" height="1170" loading="lazy">
+        <img src="img/screen-2.png" alt="Training mit animierter Figur" width="540" height="1170" loading="lazy">
+        <img src="img/screen-3.png" alt="Verlauf mit deinem Stand von Leicht bis Hart" width="540" height="1170" loading="lazy">
+        <img src="img/screen-4.png" alt="Generator mit Auswahl des Equipments" width="540" height="1170" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <section class="install" id="installieren" aria-labelledby="install-h">
+    <div class="wrap">
+      <h2 class="d" id="install-h">Aufs Handy holen</h2>
+      <p>Kein App Store nötig. Einmal hinzugefügt, startet Ready. Set. wie eine App im Vollbild, läuft auch offline und holt sich Updates von selbst.</p>
+      <div class="os">
+        <section aria-labelledby="android-h">
+          <h3 id="android-h">Android</h3>
+          <ol>
+            <li><span><a href="https://alxwll.github.io/readyset/">alxwll.github.io/readyset</a> in Chrome öffnen</span></li>
+            <li><span>Oben rechts auf das Menü ⋮ tippen</span></li>
+            <li><span>„App installieren“ bzw. „Zum Startbildschirm hinzufügen“ wählen</span></li>
+          </ol>
+        </section>
+        <section aria-labelledby="ios-h">
+          <h3 id="ios-h">iPhone</h3>
+          <ol>
+            <li><span><a href="https://alxwll.github.io/readyset/">alxwll.github.io/readyset</a> in Safari öffnen</span></li>
+            <li><span>Unten auf das Teilen-Symbol tippen</span></li>
+            <li><span>„Zum Home-Bildschirm“ wählen</span></li>
+          </ol>
+        </section>
+      </div>
+      <p class="note"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2.5" fill="none" stroke="#5A3D9A" stroke-width="2"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke="#5A3D9A" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>Deine Daten bleiben bei dir: Verlauf, Gewichte und Einstellungen liegen auf deinem Gerät, ohne Anmeldung. Mit „Geräte koppeln“ bleiben Handy, Tablet und Laptop auf demselben Stand, verschlüsselt, bevor irgendetwas dein Gerät verlässt.</span></p>
+    </div>
+  </section>
+
+  <section class="final" aria-label="App starten">
+    <div class="wrap">
+      <p class="d"><span class="row">Ready<span class="dot"></span> Set<span class="dot"></span> <a class="ring go" href="https://alxwll.github.io/readyset/" aria-label="Go: App öffnen">Go.</a></span></p>
+      <p>Den Link kannst du einfach weitergeben. Wer ihn öffnet, kann sofort loslegen.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Ready. Set. ist ein privates Projekt von Alex.</span>
+    <a href="https://github.com/alxwll/readyset">Code auf GitHub</a>
+  </div>
+</footer>
+<script>
+/* the card inside the frame tells its height; without an answer the plain link shows instead */
+(function(){var f=document.getElementById('today-frame'),ok=false;
+  addEventListener('message',function(e){if(e.origin!==location.origin&&e.origin!=='https://alxwll.github.io')return;
+    var h=e.data&&e.data.rsPeek;if(typeof h==='number'&&h>100){ok=true;f.style.height=Math.ceil(h)+'px';}});
+  f.addEventListener('load',function(){setTimeout(function(){if(!ok){f.style.display='none';f.nextElementSibling.style.display='block';}},4000);});
+})();
+</script>
+</body>
+</html>
