@@ -313,6 +313,13 @@ svg.fig{display:block;width:100%;height:100%}
 .p-stage.dim .fig{opacity:.45}
 .nofig{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:var(--muted);font-size:15px}
 .item .mini.nofig-mini{display:grid;place-items:center;font-size:10px;color:var(--muted);text-align:center;line-height:1.2;padding:4px}
+/* backup nudge on "Heute" */
+.bk-nudge{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:10px 8px 10px 14px}
+.bk-nudge .t{flex:1;min-width:0;font-size:14px;line-height:1.35}.bk-nudge b{display:block;font-size:15px}.bk-nudge span{color:var(--muted)}
+.bk-nudge .btn{flex:none}
+.bk-x{flex:none;width:40px;height:40px;border:0;background:none;border-radius:50%;color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.bk-x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.bk-pick{cursor:pointer}
 /* device pairing */
 .pair-entry{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:14px;color:var(--ink);font:inherit;cursor:pointer;margin-top:6px}
 .pair-entry .pic{width:40px;height:40px;border-radius:12px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;flex:none}
@@ -2714,6 +2721,7 @@ function renderHeute(){
       </div>
       ${doneToday?'<p class="note">Heute schon erledigt. Stark.</p>':''}
     </section>
+    ${bkNudgeHtml()}
     <section class="stack tight">
       <div class="sec-head"><h2 class="sec">Diese Woche</h2><span class="note">${DB.sessions.filter(s=>s.at>=startOfDay(Date.now())-((new Date().getDay()+6)%7)*864e5).length} Einheiten</span></div>
       ${weekStrip()}
@@ -3150,7 +3158,7 @@ function renderUebungen(){
 const BK_KEYS=['level','equip','emph','gen','prog','lvlSnooze','ban','tempo','lift','bands','wucd','load','foam','seeds','missing','roll'];
 function exportData(){return JSON.stringify({app:'ready-set',v:1,at:new Date().toISOString(),sessions:DB.sessions,favs:DB.favs,settings:Object.fromEntries(BK_KEYS.map(k=>[k,DB[k]]))});}
 function importData(txt){
-  let d; try{d=JSON.parse(String(txt).trim());}catch(e){return {ok:false,msg:'Das ist kein gültiger Datensatz. Kopiere den Text vollständig aus „Daten kopieren“.'};}
+  let d; try{d=JSON.parse(String(txt).trim());}catch(e){return {ok:false,msg:'Das ist kein gültiger Datensatz. Nimm die Backup-Datei oder den vollständigen Text aus „Daten kopieren“.'};}
   if(!d||d.app!=='ready-set'||!Array.isArray(d.sessions)) return {ok:false,msg:'Diese Daten stammen nicht aus Ready. Set.'};
   const have=new Set(DB.sessions.map(x=>x.id)), add=d.sessions.filter(x=>x&&x.id&&typeof x.at==='number'&&!have.has(x.id));
   DB.sessions=[...DB.sessions,...add];
@@ -3164,7 +3172,33 @@ function importData(txt){
   DB.equip=(DB.equip||[]).filter(id=>EQ_LABEL[id]); if(!DB.equip.length) DB.equip=['none'];
   save(); add.forEach(x=>remoteAddSession(x));
   return {ok:true,msg:`Übernommen: ${add.length} Einheit${add.length===1?'':'en'}, ${addF.length} Favorit${addF.length===1?'':'en'}, dazu Gewichte, Bandfarben und Einstellungen.`};}
+/* Backup as a file: share sheet (Google Drive, iCloud "In Dateien sichern" …) or download; monthly nudge on "Heute" */
+const MONTH=30*86400000;
+function bkFileNote(){const t=DB.bkLast;return (t?`Letztes Backup: ${new Intl.DateTimeFormat('de-DE',{day:'numeric',month:'long',year:'numeric'}).format(new Date(t))}. `:'')+'Öffnet das Teilen-Menü: Google Drive, iCloud („In Dateien sichern“) oder wohin du willst.';}
+async function backupFile(){
+  const d=new Date(), name=`ready-set-backup-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.txt`;
+  const file=new File([exportData()],name,{type:'text/plain'});
+  const download=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);};
+  let shared=false;
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:'Ready. Set. Backup'});shared=true;}
+    catch(e){if(e&&e.name==='AbortError')return false;}}
+  if(!shared)download();
+  DB.bkLast=Date.now();DB.bkSnooze=0;save();return true;}
+function bkNudgeDue(){if(!STANDALONE||PEEK||DB.sessions.length<5)return false;const now=Date.now(),first=Math.min(...DB.sessions.map(s=>s.at));
+  return now-first>=MONTH&&now-(DB.bkLast||0)>=MONTH&&now>=(DB.bkSnooze||0);}
+function bkNudgeHtml(){if(!bkNudgeDue())return '';
+  return `<div class="bk-nudge" id="bk-nudge" role="status"><div class="t"><b>Zeit für ein Backup?</b><span>${DB.bkLast?'Dein letztes ist über einen Monat her.':'Sichere deinen Verlauf in Google Drive oder iCloud.'}</span></div>
+    <button class="btn small" id="bk-nudge-go">Sichern</button><button class="bk-x" id="bk-nudge-x" aria-label="In einem Monat wieder erinnern" title="In einem Monat wieder erinnern"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`;}
+document.addEventListener('click',async e=>{const t=e.target.closest&&e.target.closest('#bk-nudge-go,#bk-nudge-x');if(!t)return;
+  const n=$('bk-nudge');
+  if(t.id==='bk-nudge-x'){DB.bkSnooze=Date.now()+MONTH;save();if(n)n.remove();return;}
+  try{if(await backupFile()&&n){n.innerHTML='<div class="t"><b>Gesichert.</b><span>Die nächste Erinnerung kommt in einem Monat.</span></div>';setTimeout(()=>{const m=$('bk-nudge');if(m)m.remove();},3500);}}
+  catch(err){if(n)n.querySelector('span').textContent='Das hat nicht geklappt. Versuch es unter Verlauf → „Backup sichern“.';}});
 function bindBackup(){const ta=$('bk-text'), st=$('bk-status'), row=$('bk-import-row'); if(!ta)return;
+  $('bk-file').addEventListener('click',async()=>{try{if(await backupFile()){st.textContent='Gesichert.';$('bk-file-note').textContent=bkFileNote();}}catch(e){st.textContent='Das hat nicht geklappt. Nimm stattdessen „Daten kopieren“.';}});
+  $('bk-pick').addEventListener('change',async ev=>{const f=ev.target.files&&ev.target.files[0];if(!f)return;
+    try{ta.value=await f.text();st.textContent=`„${f.name}“ geladen. Tipp auf „Übernehmen“.`;}catch(e){st.textContent='Die Datei ließ sich nicht lesen.';}ev.target.value='';});
   $('bk-export').addEventListener('click',async()=>{const t=exportData(); row.hidden=true; ta.hidden=false; ta.readOnly=true; ta.value=t;
     let ok=false; try{await navigator.clipboard.writeText(t); ok=true;}catch(e){}
     if(!ok){ta.focus();ta.select();}
@@ -3430,9 +3464,11 @@ function renderVerlauf(){
     <section class="backup" aria-labelledby="bk-h">
       <h3 id="bk-h">Daten sichern &amp; übernehmen</h3>
       <p class="note">Nimm Verlauf, Favoriten, Gewichte, Bandfarben und Einstellungen mit, zum Beispiel in eine neue Kopie der App oder auf ein anderes Gerät.</p>
-      <div class="bk-row"><button class="btn" id="bk-export">Daten kopieren</button><button class="btn ghost" id="bk-open-import">Daten übernehmen</button></div>
+      <div class="bk-row"><button class="btn" id="bk-file">Backup sichern</button></div>
+      <p class="note" id="bk-file-note">${bkFileNote()}</p>
+      <div class="bk-row"><button class="btn ghost" id="bk-export">Daten kopieren</button><button class="btn ghost" id="bk-open-import">Daten übernehmen</button></div>
       <textarea class="imp bk-text" id="bk-text" hidden spellcheck="false" aria-label="Gesicherte Daten"></textarea>
-      <div class="bk-row" id="bk-import-row" hidden><button class="btn" id="bk-import">Übernehmen</button><button class="btn ghost small" id="bk-cancel">Abbrechen</button></div>
+      <div class="bk-row" id="bk-import-row" hidden><button class="btn" id="bk-import">Übernehmen</button><label class="btn ghost small bk-pick">Backup-Datei öffnen<input type="file" id="bk-pick" accept=".txt,.json,text/plain,application/json" hidden></label><button class="btn ghost small" id="bk-cancel">Abbrechen</button></div>
       <p class="note" id="bk-status" aria-live="polite"></p>
     </section>
     ${STANDALONE?'':'<details class="note diag"><summary>Verbindung prüfen</summary><p id="diag">Prüfe …</p></details>'}
@@ -4014,5 +4050,5 @@ pairInit();
 route();
 syncInit();
 </script>
-<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=202611181130').catch(()=>{}));</script>
+<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js?v=202611181351').catch(()=>{}));</script>
 </html>
